@@ -9,10 +9,20 @@ RUN apt-get update
 
 # Start editing
 # Install package here for cache
-RUN apt-get -y install supervisor postfix sasl2-bin opendkim opendkim-tools
+RUN apt-get -y install supervisor postfix sasl2-bin opendkim opendkim-tools mailutils dnsutils
+
+ENV MAILDOMAIN example.com
+ENV MAILSIGNING ""
+ENV USERS mta@example.com:password mta2@example.com:password
+ENV CERTNAME ""
+ENV SMTP_RESTRICTIONS permit_sasl_authenticated,reject_unauth_destination
+
+VOLUME /etc/postfix/certs
+VOLUME /etc/opendkim/domainkeys
 
 # Add files
-ADD assets/install.sh /opt/install.sh
+COPY assets/install.sh /opt/install.sh
 
 # Run
-CMD /opt/install.sh;/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+WORKDIR /opt
+CMD /opt/install.sh && /usr/bin/supervisord -c /etc/supervisor/supervisord.conf

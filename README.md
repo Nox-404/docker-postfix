@@ -4,6 +4,13 @@ docker-postfix
 run postfix with smtp authentication (sasldb) in a docker container.
 TLS and OpenDKIM support are optional.
 
+Forked from catatnight/postfix to add some more flexibility
+* Allow to choose the certificate (default to the first cert found)
+* mail.log is now displayed inside the container log
+* Increase verbosity
+* Allow to set the smtp restrictions
+* Add a docker-compose file
+
 ## Requirement
 + Docker 1.0
 
@@ -19,15 +26,15 @@ TLS and OpenDKIM support are optional.
 
 	```bash
 	$ sudo docker run -p 25:25 \
-			-e maildomain=mail.example.com -e smtp_user=user:pwd \
+			-e MAILDOMAIN=mail.example.com -e USERS=user:pwd \
 			--name postfix -d catatnight/postfix
-	# Set multiple user credentials: -e smtp_user=user1:pwd1,user2:pwd2,...,userN:pwdN
+	# Set multiple user credentials: -e USERS=user1:pwd1 user2:pwd2 ... userN:pwdN
 	```
 2. Enable OpenDKIM: save your domain key ```.private``` in ```/path/to/domainkeys```
 
 	```bash
 	$ sudo docker run -p 25:25 \
-			-e maildomain=mail.example.com -e smtp_user=user:pwd \
+			-e MAILDOMAIN=mail.example.com -e USERS=user:pwd \
 			-v /path/to/domainkeys:/etc/opendkim/domainkeys \
 			--name postfix -d catatnight/postfix
 	```
@@ -35,10 +42,24 @@ TLS and OpenDKIM support are optional.
 
 	```bash
 	$ sudo docker run -p 587:587 \
-			-e maildomain=mail.example.com -e smtp_user=user:pwd \
+			-e MAILDOMAIN=mail.example.com -e USERS=user:pwd \
 			-v /path/to/certs:/etc/postfix/certs \
 			--name postfix -d catatnight/postfix
 	```
+
+## Environment variables
+
+```bash
+MAILDOMAIN=mail.example.com
+MAILSIGNING=example.com # Will sign *@example.com instead of *@mail.example.com
+USERS=user1@example.com:password1 user2@example.com:password2 ...
+CERTNAME=example.com # lookup for example.com.crt and example.com.key
+SMTP_RESTRICTIONS=permit_sasl_authenticated,reject_unauth_destination # SMTP restriction option (see postfix doc)
+```
+
+## Docker compose
+
+Edit to suit your needs and run ```docker-compose up -d --build```
 
 ## Note
 + Login credential should be set to (`username@mail.example.com`, `password`) in Smtp Client

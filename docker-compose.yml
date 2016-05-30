@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  mta:
+    build: .
+    networks:
+      - mail
+    expose:
+      - 25
+      - 587
+    volumes:
+      # Enable TLS
+      - ./assets/certs:/etc/postfix/certs:ro
+      # Enable DKIM signing
+      - ./assets/domainkeys:/etc/opendkim/domainkeys:ro
+    environment:
+      # Server domain
+      - MAILDOMAIN=mail.example.com
+      # Sign *@$MAILSIGNING mails (default to $MAILDOMAIN)
+      - MAILSIGNING=example.com
+      # SMTP user:password
+      - USERS=mta@example.com:password user1@example.com:password
+      # Name of the certificate ( default to the first one in the folder )
+      - CERTNAME=example.com
+      # Allow authenticated users to send mails
+      - SMTP_RESTRICTIONS=permit_sasl_authenticated
+    ports:
+      # - "25:25"
+      - "587:587"
+
+networks:
+  mail:
+    driver: bridge

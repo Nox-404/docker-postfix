@@ -1,3 +1,9 @@
 debug.sh
 sftp-config.json
 assets/domainkeys/mail.*
+
+assets/certs/*
+!assets/certs/readme
+
+assets/domainkeys/*
+!assets/domainkeys/readme
